@@ -1,0 +1,42 @@
+name: Build macOS App
+
+# 当你推送代码到 main 分支时，自动开始构建
+on:
+  push:
+    branches: [ "main" ]
+  # 如果你想手动触发，取消下面这行的注释
+  # workflow_dispatch:
+
+jobs:
+  build:
+    # 关键点：指定运行环境为最新版的 macOS
+    runs-on: macos-latest
+
+    steps:
+    # 1. 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. 安装 Python 3.9
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    # 3. 安装依赖库
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas openpyxl matplotlib numpy py2app
+
+    # 4. 执行打包 (运行你的 setup.py)
+    - name: Build App
+      run: python setup.py py2app
+
+    # 5. 上传生成的 .app 文件，供你下载
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-app
+        # 假设你的 app 名叫 "销售毛利分析系统.app"
+      path: dist/销售毛利分析系统.app
